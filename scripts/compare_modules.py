@@ -33,8 +33,9 @@ tables_2 = camelot.read_pdf(PDF_2,
 tables_2[0].df.head(25)
 
 # %%
-# PDFLayoutTextStripper
+# PDFLayoutTextStripper 2.2.3
 # https://stackoverflow.com/questions/51334387/unable-to-launch-gateway-from-python-in-py4j
+# https://stackoverflow.com/questions/42826221/py4j-how-to-launch-the-java-gateway-from-python
 # https://www.py4j.org/py4j_java_gateway.html#examples
 
 gg = (JavaGateway
@@ -52,6 +53,7 @@ for i in range(30):
 
 # %%
 res_2 = pdf_stripper.strip(PDF_2)
-str_2 = res_2["payload"].splitlines()
-for i in range(30):
-    print(str_2[i])
+res_2
+
+# %%
+gg.close()
