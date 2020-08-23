@@ -17,7 +17,7 @@
 * [python API](https://github.com/thoqbk/PDFLayoutTextStripper)
 * [py4j](https://www.py4j.org/py4j_java_gateway.html#examples) (java to python)
 * проблемы:
-    * ошибка на файле task_description/examples/sysco PO#_077-2706402.pdf: 
+    * ошибка на файле ![hj](task_description/examples/sysco%20PO#_077-2706402.pdf): 
     ```python
     {'success': 'false', 'error': 'String index out of range: -1'}
     ```
