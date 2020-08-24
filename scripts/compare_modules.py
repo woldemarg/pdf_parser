@@ -1,6 +1,8 @@
+from py4j.java_gateway import JavaGateway
+
 import tabula
 import camelot
-from py4j.java_gateway import JavaGateway
+import pdftotext
 
 # %%
 PDF_1 = "task_description/examples/GFS 5760519.pdf"
@@ -22,7 +24,7 @@ tables_1 = camelot.read_pdf(PDF_1,
                             split_text=True,
                             suppress_stdout=True,
                             pages="all")
-tables_1[0].df.head(25)
+print(tables_1[0].df.head(25))
 
 # %%
 tables_2 = camelot.read_pdf(PDF_2,
@@ -30,7 +32,7 @@ tables_2 = camelot.read_pdf(PDF_2,
                             split_text=True,
                             suppress_stdout=True,
                             pages="all")
-tables_2[0].df.head(25)
+print(tables_2[0].df.head(25))
 
 # %%
 # PDFLayoutTextStripper 2.2.3
@@ -53,7 +55,29 @@ for i in range(30):
 
 # %%
 res_2 = pdf_stripper.strip(PDF_2)
-res_2
+print(res_2)
 
 # %%
 gg.close()
+
+# %%
+# pdftotext 2.1.5
+# https://stackoverflow.com/questions/14372706/visual-studio-cant-build-due-to-rc-exe
+with open(PDF_1, "rb") as f1:
+    pdf_1 = pdftotext.PDF(f1)
+
+txt_1 = ("\n\n".join(pdf_1) # append all pages
+         .splitlines())
+
+for i in range(35):
+    print(txt_1[i])
+
+# %%
+with open(PDF_2, "rb") as f2:
+    pdf_2 = pdftotext.PDF(f2)
+
+txt_2 = ("\n\n".join(pdf_2)
+         .splitlines())
+
+for i in range(25):
+    print(txt_2[i])
