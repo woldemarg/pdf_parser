@@ -23,16 +23,17 @@
 ### pdftotext 2.1.5 (рекомендуется в [описании](task_description/PDF%20Invoice%20Parsing.docx) задания)
 * [описание и документация](https://github.com/jalan/pdftotext)
 * проблемы:
-    * сложности с уcтановкой для Windows
+    * однострочные заголовки таблиц могут дробиться на несколько рядов
 ### Резюме:
-* примері работі модулей- см. [ноутбук](scripts/notebooks/compare_modules.ipynb)
+* примеры работы модулей- см. [ноутбук](scripts/notebooks/compare_modules.ipynb)
 * все модули требуют значительной дополнительной работы с текстом
 * *camelot*, *pdflayouttextstripper*, *pdftotext* сохраняют максимум входной информации (два последних - в т.ч. и layout документа). Но:
-    * *camelot* должен находить таблицы, а парсит весь текст, что странно
+    * *camelot* работает значительно дольше *pdftotext*
     * *pdflayouttextstripper* не принимает некоторые документы
-* делаем выбор в пользу *pdftotext*
+    * *pdftotext* склонен дробить одну строку текста (с подчеркиванием) на несколько блоков (отельных строк)
+* с помощью *pdftotext* и *camelot* можно добиться схожих результатов, будем продолжать работу с этими модулями
 
 ## TODO
-1. Решить вопрос с ошибкой ```{'success': 'false', 'error': 'String index out of range: -1'}``` в *PDFLayoutTextStripper*
+1. ~~Решить вопрос с ошибкой ```{'success': 'false', 'error': 'String index out of range: -1'}``` в *PDFLayoutTextStripper*~~
     * 23.08.2020 - все файлы типа *sysco PO#_077-2706402.pdf* имеют bookmarks. Удалил закладки через [avepdf.com](https://avepdf.com/en/remove-pdf-content) + при удалении обновляется версия pdf c 1.0 до 1.5. Изм. файл [sysco PO#_077-2706402_no_bmrks.pdf](task_description/examples/no_bookmarks/sysco%20PO#_077-2706402_no_bmrks.pdf) дает ту же ошибку.
-    * 24.08.2020 - отказ от работы смодулемвпользу *pdftotext*
+    * 24.08.2020 - отказ от работы с модулем *pdflayouttextstripper* в пользу других модулей
