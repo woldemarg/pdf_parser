@@ -3,7 +3,6 @@ import numpy as np
 
 import camelot
 import pdftotext
-
 # import re
 
 # %%
@@ -40,24 +39,24 @@ for df in parsed:
 cam_df = pd.concat(df_list, ignore_index=True)
 
 # %%
-print(ptt_df.equals(cam_df))
+# print(ptt_df.equals(cam_df))
 
 # %%
-unequal_mask = (ptt_df[0] != cam_df[0])
+# unequal_mask = (ptt_df[0] != cam_df[0])
 
-compare_df = pd.concat([ptt_df[unequal_mask],
-                        cam_df[unequal_mask]],
-                       axis=1)
+# compare_df = pd.concat([ptt_df[unequal_mask],
+#                         cam_df[unequal_mask]],
+#                        axis=1)
 
-compare_df.columns = ["ptt", "cam"]
+# compare_df.columns = ["ptt", "cam"]
 
 # %%
-print(compare_df.loc[22, "ptt"])
-print(compare_df.loc[22, "cam"])
+# print(compare_df.loc[22, "ptt"])
+# print(compare_df.loc[22, "cam"])
 
 # %%
 is_separator_mask = ptt_df[0].apply(lambda s: s == len(s) * s[0])
-max_str_length = ptt_df.loc[is_separator_mask, 0].str.len().max()
+max_str_length = ptt_df.loc[is_separator_mask][0].str.len().max()
 
 # get all rows starts with numbers, preserving original index
 d_rows = (ptt_df[(ptt_df[0].str.contains(r"^\d")) & # starts with digit
@@ -74,7 +73,6 @@ one_idx = (d_rows
            .index
            .get_loc(tbl_frst_row_idx))
 
-
 # get sequence of numbers, each next bigger than previous by 1
 CNT = 1
 while ((d_rows.iloc[one_idx + CNT] -
@@ -83,8 +81,23 @@ while ((d_rows.iloc[one_idx + CNT] -
     CNT += 1
 
 tbl_last_row_idx = d_rows.index[one_idx + CNT]
+tbl_idx_ext = ptt_df.index[tbl_frst_row_idx : tbl_last_row_idx + 1]
 
-g = ptt_df.iloc[tbl_frst_row_idx:tbl_last_row_idx + 1]
+# in-between table rows there could be some data
+if tbl_idx_ext[1] not in d_rows.index:
+    tbl_idx_ext = ptt_df.index[tbl_frst_row_idx : tbl_last_row_idx + 2]
+
+# drop header lines
+tbl_lines = (ptt_df.loc[tbl_idx_ext][0]
+             .str.replace(" ", "")
+             .str[:-1]) # to match PAGE-1 with PAGE-2
+
+top_lines = (ptt_df.loc[:tbl_frst_row_idx - 1][0]
+             .str.replace(" ", "")
+             .str[:-1])
+
+tbl_idx_cln = tbl_lines.index[~tbl_lines.isin(top_lines)]
+
 
 
 
