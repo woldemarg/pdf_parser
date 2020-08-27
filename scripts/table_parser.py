@@ -1,13 +1,16 @@
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 
 import camelot
+import cv2
+
 import pdftotext
 # import re
 
 # %%
-NEW_PDF = "task_description/examples/GFS 5760519.pdf"
-# NEW_PDF = "task_description/examples/sysco PO#_077-2706434.pdf"
+# NEW_PDF = "task_description/examples/GFS 5760519.pdf"
+NEW_PDF = "task_description/examples/sysco PO#_077-2706434.pdf"
 
 # %%
 with open(NEW_PDF, "rb") as file:
@@ -17,14 +20,14 @@ splitted = ("\n\n".join(text_pages)
             .splitlines())
 
 ptt_df = pd.DataFrame(splitted)
-ptt_df[0].replace("", np.nan, inplace=True)
-ptt_df = (ptt_df
-          .dropna()
-          .reset_index(drop=True))
-
 ptt_df[0] = ptt_df[0].str.strip()
 
-ptt_df.drop(ptt_df[ptt_df[0].str.len() == 1].index, inplace=True)
+ptt_df[0].replace("", np.nan, inplace=True)
+ptt_df.dropna(inplace=True)
+(ptt_df
+  .drop(ptt_df[ptt_df[0].str.len() == 1].index,
+        inplace=True))
+ptt_df = ptt_df.reset_index(drop=True)
 
 # %%
 parsed = camelot.read_pdf(NEW_PDF,
@@ -60,7 +63,9 @@ cam_df.drop(cam_df[cam_df[0].str.len() == 1].index, inplace=True)
 
 # %%
 # separators
-filled_lines_mask = ptt_df[0].apply(lambda s: s == len(s) * s[0])
+filled_lines_mask = (ptt_df[0]
+                     .apply(lambda s:
+                            False if not s else s == len(s) * s[0]))
 filled_lines_lens = ptt_df.loc[filled_lines_mask][0].str.len()
 str_len_max = filled_lines_lens.max()
 
@@ -115,7 +120,7 @@ if ln_above_tbl_idx in sep_idx:
     tbl_hdr_last_idx = ln_above_tbl_idx
 else:
     prev_sep_idx = sep_idx[sep_idx < ln_above_tbl_idx][0]
-    tbl_hdr_last_idx = ln_above_tbl_idx - 1
+    tbl_hdr_last_idx = ln_above_tbl_idx + 1
 
 tbl_hdr_frst_idx = prev_sep_idx + 1
 tbl_hdr_idx = ptt_df.index[tbl_hdr_frst_idx : tbl_hdr_last_idx]
@@ -123,102 +128,106 @@ tbl_hdr_idx = ptt_df.index[tbl_hdr_frst_idx : tbl_hdr_last_idx]
 print(ptt_df.loc[tbl_hdr_idx])
 
 # %%
-# import cv2
-# import matplotlib.pyplot as plt
-# image = cv2.imread('scripts/notebooks/gfs_5760519_page_1.png')
-# texted_image =cv2.putText(img=np.copy(image), text=["hello\n", "world"], org=(25,25),fontFace=1, fontScale=1, color=(0,0,255), thickness=5)
-# plt.imshow(texted_image)
-# plt.show()
+class pdf_parser():
 
-# img = np.zeros((500,500,3), dtype='uint8')
-# print(img.shape)
-
-# position = (500, 100)
-# font_scale = 0.75
-# color = (255, 255, 255)
-# thickness = 3
-# font = cv2.FONT_HERSHEY_SIMPLEX
-# line_type = cv2.LINE_AA
-
-# text_size = cv2.getTextSize(splitted[0], font, font_scale, thickness)[0]
-
-# line_height = text_size[1] + 3
-
-# x, y0 = position
-# for i in range(len(splitted)):
-#     line = splitted[i].rstrip()
-#     cv2.putText(image,
-#                 line,
-#                 (x, y),
-#                 font,
-#                 font_scale,
-#                 color,
-#                 thickness,
-#                 line_type)
+    def __init__(self,
+                 doc_df=None,
+                 drop_empty_rows=True,
+                 file_path=None,
+                 parse_method="pdftotext"
+                 ):
+        self.doc_df = doc_df
+        self.drop_empty_rows=drop_empty_rows
+        self.file_path = file_path
+        self.parse_method = parse_method
 
 
+    def get_rows(self, file_path):
+        self.file_path = file_path
+        if self.parse_method == "pdftotext":
+
+            with open(self.file_path, "rb") as file:
+                text_pages = pdftotext.PDF(file)
+
+            parsed = ("\n\n".join(text_pages)
+                      .splitlines())
+
+            doc_df = pd.DataFrame(parsed)
+
+            doc_df[0] = doc_df[0].str.strip()
+
+            if self.drop_empty_rows:
+                doc_df[0].replace("", np.nan, inplace=True)
+                doc_df.dropna(inplace=True)
+
+                (doc_df
+                 .drop(doc_df[doc_df[0].str.len() == 1].index,
+                       inplace=True))
+
+                doc_df = doc_df.reset_index(drop=True)
+
+        elif self.parse_method == "camelot":
+            parsed = camelot.read_pdf(file_path,
+                                      flavor="stream",
+                                      split_text=True,
+                                      suppress_stdout=True,
+                                      pages="all")
+
+            df_list = []
+
+            for df in parsed:
+                df_list.append(df.df)
+
+            doc_df = pd.concat(df_list, ignore_index=True)
+
+            if self.drop_empty_rows:
+                (doc_df
+                 .drop(doc_df[doc_df[0].str.len() == 1].index,
+                       inplace=True))
+
+                doc_df = doc_df.reset_index(drop=True)
+
+        self.doc_df = doc_df
+        return doc_df
+
+# %%
+
+my_parser = pdf_parser(parse_method="camelot")
+f = my_parser.get_rows(file_path=NEW_PDF)
+g = my_parser.get_rows(file_path=NEW_PDF)
+
+my_parser.file_path
+my_parser.doc_df
+
+# %%
+image = cv2.imread('scripts/notebooks/gfs_5760519_page_1_resized.png')
+position = (5, 10)
+font_scale = 0.3
+color = (255, 0, 0)
+thickness = 1
+font = cv2.FONT_HERSHEY_PLAIN
+line_type = cv2.LINE_AA
+
+text_size = cv2.getTextSize(splitted[0], font, font_scale, thickness)[0]
+line_height = text_size[1] + 3
+x, y0 = position
+for i in range(len(splitted[:50])):
+    line = "l1"
+    y = y0 + i * line_height
+    cv2.putText(image,
+                line,
+                (x, y),
+                font,
+                font_scale,
+                color,
+                thickness,
+                line_type)
+plt.imshow(image)
 # cv2.imshow("Result Image", image)
 # cv2.waitKey(0)
 # cv2.destroyAllWindows()
-# # %%
-# import numpy as np
-# import cv2
-# import textwrap
 
-# img = np.zeros((500,500,3), dtype='uint8')
-# print(img.shape)
-
-# height, width, channel = img.shape
-
-# text_img = np.ones((height, width))
-# print(text_img.shape)
-# font = cv2.FONT_HERSHEY_SIMPLEX
-
-# text = "type: car, color: white, number: 123456"
-# #to automatically wrap text => wrapped_text = textwrap.wrap(text, width=10)
-# wrapped_text = ['Type: car','Color: white','Number: 123456']
-# x, y = 10, 40
-# font_size = 0.5
-# font_thickness = 1
-
-# i = 0
-# for line in wrapped_text:
-#     textsize = cv2.getTextSize(line, font, font_size, font_thickness)[0]
-
-#     gap = textsize[1] + 5
-
-#     y = int((img.shape[0] + textsize[1]) / 2) + i * gap
-#     x = 10#for center alignment => int((img.shape[1] - textsize[0]) / 2)
-
-#     cv2.putText(image, line, (x, y), font,
-#                 font_size,
-#                 (255,255,255),
-#                 font_thickness,
-#                 lineType = cv2.LINE_AA)
-#     i +=1
-
-# cv2.imshow("Result Image", image)
-# cv2.waitKey(0)
-# cv2.destroyAllWindows()
-
-# f_elem = d_rows[0].str[0]
-# d = d_rows.diff()
-# start_idx = d[(d != 1) & (~d.isna())].idxmin()
-# d_rows[start_idx]
-# for i in range(d.index.get_loc(start_idx) + 1, len(d)):
-#     if d.iloc[i] =! 1:
-#         start_ind =
-#         end_idx = d.index[i]
-#     end_idx = d.index[len(d) - 1]
-
-
-# d[d == d.iloc[1].index
-# d.index.get_loc(22)
-# start_idx = digit_rows.index[i + 1]
-#     end_idx = digit_rows.index[i]
-
-# digit_rows.iloc[1, 0][0]
-
+# %%
 # s = compare_df.iloc[1, 0]
 
 # tokens = re.findall('\s+', s)
