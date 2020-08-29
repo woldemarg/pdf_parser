@@ -11,6 +11,7 @@ import pdftotext
 # %%
 # NEW_PDF = "task_description/examples/GFS 5760519.pdf"
 NEW_PDF = "task_description/examples/sysco PO#_077-2706434.pdf"
+# NEW_PDF = "task_description/examples/Sysco PO#_338-4243823.pdf"
 
 # %%
 with open(NEW_PDF, "rb") as file:
@@ -73,7 +74,7 @@ sep_idx = filled_lines_lens.index[filled_lines_lens > str_len_max * 0.9]
 
 # table indicies
 # get all rows starts with numbers, preserving original index
-d_rows = (ptt_df[(ptt_df[0].str.contains(r"^\d")) & # starts with digit
+d_rows = (ptt_df[(ptt_df[0].str.contains(r"^\d+\s+")) & # starts with digit
                  ((ptt_df[0].str.len() -
                    ptt_df[0].str.count(" ")) /
                   str_len_max > 0.3)][0] # and filled for more than 30%
@@ -94,7 +95,7 @@ while ((d_rows.iloc[one_idx + CNT] -
        (one_idx + CNT <= len(d_rows) - 2)):
     CNT += 1
 
-tbl_last_row_idx = d_rows.index[one_idx + CNT]
+tbl_last_row_idx = d_rows.index[CNT]
 tbl_idx_ext = ptt_df.index[tbl_frst_row_idx : tbl_last_row_idx + 1]
 
 # in-between table rows there could be some data
@@ -125,84 +126,17 @@ else:
 tbl_hdr_frst_idx = prev_sep_idx + 1
 tbl_hdr_idx = ptt_df.index[tbl_hdr_frst_idx : tbl_hdr_last_idx]
 
+ptt_df["marks"] = np.nan
+ptt_df.loc[sep_idx, "marks"] = "separator"
+ptt_df.loc[tbl_idx_cln, "marks"] = "table_row"
+ptt_df.loc[tbl_hdr_idx, "marks"] = "table_header"
+
 print(ptt_df.loc[tbl_hdr_idx])
 
 # %%
-class pdf_parser():
-
-    def __init__(self,
-                 doc_df=None,
-                 drop_empty_rows=True,
-                 file_path=None,
-                 parse_method="pdftotext"
-                 ):
-        self.doc_df = doc_df
-        self.drop_empty_rows=drop_empty_rows
-        self.file_path = file_path
-        self.parse_method = parse_method
-
-
-    def get_rows(self, file_path):
-        self.file_path = file_path
-        if self.parse_method == "pdftotext":
-
-            with open(self.file_path, "rb") as file:
-                text_pages = pdftotext.PDF(file)
-
-            parsed = ("\n\n".join(text_pages)
-                      .splitlines())
-
-            doc_df = pd.DataFrame(parsed)
-
-            doc_df[0] = doc_df[0].str.strip()
-
-            if self.drop_empty_rows:
-                doc_df[0].replace("", np.nan, inplace=True)
-                doc_df.dropna(inplace=True)
-
-                (doc_df
-                 .drop(doc_df[doc_df[0].str.len() == 1].index,
-                       inplace=True))
-
-                doc_df = doc_df.reset_index(drop=True)
-
-        elif self.parse_method == "camelot":
-            parsed = camelot.read_pdf(file_path,
-                                      flavor="stream",
-                                      split_text=True,
-                                      suppress_stdout=True,
-                                      pages="all")
-
-            df_list = []
-
-            for df in parsed:
-                df_list.append(df.df)
-
-            doc_df = pd.concat(df_list, ignore_index=True)
-
-            if self.drop_empty_rows:
-                (doc_df
-                 .drop(doc_df[doc_df[0].str.len() == 1].index,
-                       inplace=True))
-
-                doc_df = doc_df.reset_index(drop=True)
-
-        self.doc_df = doc_df
-        return doc_df
-
-# %%
-
-my_parser = pdf_parser(parse_method="camelot")
-f = my_parser.get_rows(file_path=NEW_PDF)
-g = my_parser.get_rows(file_path=NEW_PDF)
-
-my_parser.file_path
-my_parser.doc_df
-
-# %%
-image = cv2.imread('scripts/notebooks/gfs_5760519_page_1_resized.png')
+image = cv2.imread('scripts/notebooks/sysco_po#_338-4243823_resized.png')
 position = (5, 10)
-font_scale = 0.3
+font_scale = 0.5
 color = (255, 0, 0)
 thickness = 1
 font = cv2.FONT_HERSHEY_PLAIN
@@ -211,7 +145,7 @@ line_type = cv2.LINE_AA
 text_size = cv2.getTextSize(splitted[0], font, font_scale, thickness)[0]
 line_height = text_size[1] + 3
 x, y0 = position
-for i in range(len(splitted[:50])):
+for i in range(len(df)):
     line = "l1"
     y = y0 + i * line_height
     cv2.putText(image,
@@ -222,10 +156,39 @@ for i in range(len(splitted[:50])):
                 color,
                 thickness,
                 line_type)
-plt.imshow(image)
-# cv2.imshow("Result Image", image)
-# cv2.waitKey(0)
-# cv2.destroyAllWindows()
+# plt.imshow(image)
+cv2.imshow("Result Image", image)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+# %%
+image = np.zeros((625,1275,3), dtype='uint8')
+height, width, channel = image.shape
+position = (50, 15)
+font_scale = 0.35
+color = (255, 255, 255)
+thickness = 1
+font = cv2.FONT_HERSHEY_SIMPLEX
+line_type = cv2.LINE_AA
+
+text_size = cv2.getTextSize(splitted[0], font, font_scale, thickness)[0]
+line_height = text_size[1] + 5
+x, y0 = position
+for i in range(len(ptt_df)):
+    line = ptt_df.loc[i, 0]
+    y = y0 + i * line_height
+    cv2.putText(image,
+                line,
+                (x, y),
+                font,
+                font_scale,
+                color,
+                thickness,
+                line_type)
+# plt.imshow(image)
+cv2.imshow("Result Image", image)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
 
 # %%
 # s = compare_df.iloc[1, 0]
