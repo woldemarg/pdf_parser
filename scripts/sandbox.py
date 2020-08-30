@@ -9,8 +9,8 @@ import pdftotext
 # import re
 
 # %%
-NEW_PDF = "task_description/examples/GFS 5760519.pdf"
-# NEW_PDF = "task_description/examples/sysco PO#_077-2706434.pdf"
+# NEW_PDF = "task_description/examples/GFS 5760519.pdf"
+NEW_PDF = "task_description/examples/sysco PO#_077-2706434.pdf"
 # NEW_PDF = "task_description/examples/Sysco PO#_338-4243823.pdf"
 # NEW_PDF = "task_description/examples/GFS PO3430811.pdf"
 

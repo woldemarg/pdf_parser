@@ -33,6 +33,8 @@
     * *pdftotext* склонен дробить одну строку текста (с подчеркиванием) на несколько блоков (отельных строк)
 * с помощью *pdftotext* и *camelot* можно добиться схожих результатов, будем продолжать работу с этими модулями
 
+## <a name="evr"></a>Эвристики для выделения таблиц -> требования к входным файлам
+
 ## TODO
 1. ~~Решить вопрос с ошибкой ```{'success': 'false', 'error': 'String index out of range: -1'}``` в *PDFLayoutTextStripper*~~
     * 23.08.2020 - все файлы типа *sysco PO#_077-2706402.pdf* имеют bookmarks. Удалил закладки через [avepdf.com](https://avepdf.com/en/remove-pdf-content) + при удалении обновляется версия pdf c 1.0 до 1.5. Изм. файл [sysco PO#_077-2706402_no_bmrks.pdf](task_description/examples/no_bookmarks/sysco%20PO#_077-2706402_no_bmrks.pdf) дает ту же ошибку.
