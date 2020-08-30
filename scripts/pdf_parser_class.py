@@ -24,7 +24,7 @@ class PDFparser():
         self.tbl_row_min_fill = tbl_row_min_fill
 
 
-    def __get_rows(self, file_path):
+    def get_rows(self, file_path):
         if self.parse_method == "pdftotext":
 
             with open(file_path, "rb") as file:
@@ -100,20 +100,7 @@ class PDFparser():
                   .str.extract(pat=r"^(\d+)\s*\D")
                   .astype(np.int64))[0]
 
-        # tbl_frst_row_idx = d_rows[d_rows == 1].index.min()
         tbl_frst_row_idx = d_rows.index[0]
-
-        # one_idx = (d_rows
-        #            .index
-        #            .get_loc(tbl_frst_row_idx))
-
-        # CNT = 1
-        # while ((d_rows.iloc[one_idx + CNT] -
-        #         d_rows.iloc[one_idx + CNT - 1] == 1) and
-        #        (one_idx + CNT <= len(d_rows) - 2)):
-        #     CNT += 1
-
-        # tbl_last_row_idx = d_rows.index[CNT]
         tbl_last_row_idx = d_rows.index[-1]
 
         tbl_idx_ext = (self.doc_df
@@ -158,7 +145,9 @@ class PDFparser():
 
 
     def get_rows_marked(self, file_path):
-        doc_df = self.__get_rows(file_path)
+        if self.doc_df is None:
+            doc_df = self.get_rows(file_path)
+        doc_df = self.doc_df
         doc_df["mark"] = np.nan
 
         self.__get_sep_idx()
