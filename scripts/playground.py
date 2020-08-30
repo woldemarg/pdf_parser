@@ -1,14 +1,16 @@
 import numpy as np
 import cv2
 from scripts.pdf_parser_class import PDFparser
+from pathlib import Path
 
 # %%
-# PDF = "task_description/examples/Sysco PO#_338-4243823.pdf"
-PDF = "task_description/examples/GFS 5760519.pdf"
+pdf_pths = [str(pth) for pth
+            in Path("task_description/examples/").iterdir()
+            if pth.suffix == ".pdf"]
 
 # %%
-my_parser = PDFparser()
-df_marked = my_parser.get_rows_marked(PDF)
+my_parser = PDFparser(parse_method="camelot")
+df_marked_2 = my_parser.get_rows_marked(pdf_pths[0])
 
 # %%
 longest_str = df_marked.loc[df_marked[0].str.len().idxmax()][0]

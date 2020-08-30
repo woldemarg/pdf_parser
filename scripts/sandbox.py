@@ -9,9 +9,10 @@ import pdftotext
 # import re
 
 # %%
-# NEW_PDF = "task_description/examples/GFS 5760519.pdf"
-NEW_PDF = "task_description/examples/sysco PO#_077-2706434.pdf"
+NEW_PDF = "task_description/examples/GFS 5760519.pdf"
+# NEW_PDF = "task_description/examples/sysco PO#_077-2706434.pdf"
 # NEW_PDF = "task_description/examples/Sysco PO#_338-4243823.pdf"
+# NEW_PDF = "task_description/examples/GFS PO3430811.pdf"
 
 # %%
 with open(NEW_PDF, "rb") as file:
@@ -45,6 +46,7 @@ for df in parsed:
 cam_df = pd.concat(df_list, ignore_index=True)
 
 cam_df.drop(cam_df[cam_df[0].str.len() == 1].index, inplace=True)
+cam_df = cam_df.reset_index(drop=True)
 
 # %%
 # print(ptt_df.equals(cam_df))
@@ -64,20 +66,22 @@ cam_df.drop(cam_df[cam_df[0].str.len() == 1].index, inplace=True)
 
 # %%
 # separators
+# ptt_df = cam_df
 filled_lines_mask = (ptt_df[0]
                      .apply(lambda s:
                             False if not s else s == len(s) * s[0]))
 filled_lines_lens = ptt_df.loc[filled_lines_mask][0].str.len()
-str_len_max = filled_lines_lens.max()
+# str_len_max = filled_lines_lens.max()
+str_len_max = ptt_df[0].str.len().max()
 
-sep_idx = filled_lines_lens.index[filled_lines_lens > str_len_max * 0.9]
+sep_idx = filled_lines_lens.index[filled_lines_lens >= str_len_max * 0.5]
 
 # table indicies
 # get all rows starts with numbers, preserving original index
 d_rows = (ptt_df[(ptt_df[0].str.contains(r"^\d+\s+")) & # starts with digit
                  ((ptt_df[0].str.len() -
                    ptt_df[0].str.count(" ")) /
-                  str_len_max > 0.3)][0] # and filled for more than 30%
+                  ptt_df[0].str.len().mean() >= 0.5)][0] # and filled for more than 30%
           .str.extract(pat=r"^(\d+)\s*\D") # get number from str beginning
           .astype(np.int64))[0]
 

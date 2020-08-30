@@ -9,8 +9,8 @@ class PDFparser():
     def __init__(self,
                  drop_empty_rows=True,
                  parse_method="pdftotext",
-                 sep_min_width=0.9,
-                 tbl_row_min_fill=0.3
+                 sep_min_width=0.5,
+                 tbl_row_min_fill=0.5
                  ):
         self.doc_df = None
         self.drop_empty_rows = drop_empty_rows
@@ -83,7 +83,7 @@ class PDFparser():
         str_len_max = self.doc_df[0].str.len().max()
 
         sep_idx = (filled_lines_lens
-                   .index[filled_lines_lens > str_len_max *
+                   .index[filled_lines_lens >= str_len_max *
                           self.sep_min_width])
 
         self.sep_idx = sep_idx
@@ -95,7 +95,8 @@ class PDFparser():
         d_rows = (self.doc_df[(self.doc_df[0].str.contains(r"^\d+\s+")) &
                               ((self.doc_df[0].str.len() -
                                 self.doc_df[0].str.count(" ")) /
-                               self.str_len_max > self.tbl_row_min_fill)][0]
+                               self.doc_df[0].str.len().mean() >=
+                               self.tbl_row_min_fill)][0]
                   .str.extract(pat=r"^(\d+)\s*\D")
                   .astype(np.int64))[0]
 
