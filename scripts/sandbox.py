@@ -81,7 +81,7 @@ sep_idx = filled_lines_lens.index[filled_lines_lens >= str_len_max * 0.5]
 d_rows = (ptt_df[(ptt_df[0].str.contains(r"^\d+\s+")) & # starts with digit
                  ((ptt_df[0].str.len() -
                    ptt_df[0].str.count(" ")) /
-                  ptt_df[0].str.len().mean() >= 0.5)][0] # and filled for more than 30%
+                  ptt_df[0].str.len().mean() >= 0.6)][0] # and filled for more than 30%
           .str.extract(pat=r"^(\d+)\s*\D") # get number from str beginning
           .astype(np.int64))[0]
 

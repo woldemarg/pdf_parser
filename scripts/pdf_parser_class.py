@@ -10,7 +10,7 @@ class PDFparser():
                  drop_empty_rows=True,
                  parse_method="pdftotext",
                  sep_min_width=0.5,
-                 tbl_row_min_fill=0.5
+                 tbl_row_min_fill=0.6
                  ):
         self.doc_df = None
         self.drop_empty_rows = drop_empty_rows
@@ -100,19 +100,22 @@ class PDFparser():
                   .str.extract(pat=r"^(\d+)\s*\D")
                   .astype(np.int64))[0]
 
-        tbl_frst_row_idx = d_rows[d_rows == 1].index.min()
+        # tbl_frst_row_idx = d_rows[d_rows == 1].index.min()
+        tbl_frst_row_idx = d_rows.index[0]
 
-        one_idx = (d_rows
-                   .index
-                   .get_loc(tbl_frst_row_idx))
+        # one_idx = (d_rows
+        #            .index
+        #            .get_loc(tbl_frst_row_idx))
 
-        CNT = 1
-        while ((d_rows.iloc[one_idx + CNT] -
-                d_rows.iloc[one_idx + CNT - 1] == 1) and
-               (one_idx + CNT <= len(d_rows) - 2)):
-            CNT += 1
+        # CNT = 1
+        # while ((d_rows.iloc[one_idx + CNT] -
+        #         d_rows.iloc[one_idx + CNT - 1] == 1) and
+        #        (one_idx + CNT <= len(d_rows) - 2)):
+        #     CNT += 1
 
-        tbl_last_row_idx = d_rows.index[CNT]
+        # tbl_last_row_idx = d_rows.index[CNT]
+        tbl_last_row_idx = d_rows.index[-1]
+
         tbl_idx_ext = (self.doc_df
                        .index[tbl_frst_row_idx : tbl_last_row_idx + 1])
 
