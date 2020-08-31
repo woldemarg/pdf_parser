@@ -135,65 +135,6 @@ ptt_df.loc[sep_idx, "marks"] = "separator"
 ptt_df.loc[tbl_idx_cln, "marks"] = "table_row"
 ptt_df.loc[tbl_hdr_idx, "marks"] = "table_header"
 
-print(ptt_df.loc[tbl_hdr_idx])
-
-# %%
-image = cv2.imread('scripts/notebooks/sysco_po#_338-4243823_resized.png')
-position = (5, 10)
-font_scale = 0.5
-color = (255, 0, 0)
-thickness = 1
-font = cv2.FONT_HERSHEY_PLAIN
-line_type = cv2.LINE_AA
-
-text_size = cv2.getTextSize(splitted[0], font, font_scale, thickness)[0]
-line_height = text_size[1] + 3
-x, y0 = position
-for i in range(len(df)):
-    line = "l1"
-    y = y0 + i * line_height
-    cv2.putText(image,
-                line,
-                (x, y),
-                font,
-                font_scale,
-                color,
-                thickness,
-                line_type)
-# plt.imshow(image)
-cv2.imshow("Result Image", image)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
-
-# %%
-image = np.zeros((625,1275,3), dtype='uint8')
-height, width, channel = image.shape
-position = (50, 15)
-font_scale = 0.35
-color = (255, 255, 255)
-thickness = 1
-font = cv2.FONT_HERSHEY_SIMPLEX
-line_type = cv2.LINE_AA
-
-text_size = cv2.getTextSize(splitted[0], font, font_scale, thickness)[0]
-line_height = text_size[1] + 5
-x, y0 = position
-for i in range(len(ptt_df)):
-    line = ptt_df.loc[i, 0]
-    y = y0 + i * line_height
-    cv2.putText(image,
-                line,
-                (x, y),
-                font,
-                font_scale,
-                color,
-                thickness,
-                line_type)
-# plt.imshow(image)
-cv2.imshow("Result Image", image)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
-
 # %%
 # s = compare_df.iloc[1, 0]
 
