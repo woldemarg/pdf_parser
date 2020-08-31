@@ -46,8 +46,8 @@
     * 23.08.2020 - все файлы типа *sysco PO#_077-2706402.pdf* имеют bookmarks. Удалил закладки через [avepdf.com](https://avepdf.com/en/remove-pdf-content) + при удалении обновляется версия pdf c 1.0 до 1.5. Изм. файл [sysco PO#_077-2706402_no_bmrks.pdf](task_description/examples/no_bookmarks/sysco%20PO#_077-2706402_no_bmrks.pdf) дает ту же ошибку.
     * 24.08.2020 - отказ от работы с модулем *pdflayouttextstripper* в пользу других модулей
 2. Написать модуль для распознания структуры документа на основе [эвристик](https://github.com/woldemarg/pdf_parser#%D1%8D%D0%B2%D1%80%D0%B8%D1%81%D1%82%D0%B8%D0%BA%D0%B8-%D0%B4%D0%BB%D1%8F-%D0%B2%D1%8B%D0%B4%D0%B5%D0%BB%D0%B5%D0%BD%D0%B8%D1%8F-%D1%82%D0%B0%D0%B1%D0%BB%D0%B8%D1%86---%D1%82%D1%80%D0%B5%D0%B1%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F-%D0%BA-%D0%B2%D1%85%D0%BE%D0%B4%D0%BD%D1%8B%D0%BC-%D1%84%D0%B0%D0%B9%D0%BB%D0%B0%D0%BC)
-    * 28.08.2020 - [кастомный модуль](scripts/pdf_parser_class.py) и результаты его работы на примерах документов - см. [ноутбук](scripts/notebooks/compare_modules.ipynb)
+    * 28.08.2020 - [кастомный модуль](scripts/pdf_parser_class.py) и результаты его работы на примерах документов - см. [ноутбук](scripts/notebooks/pdf_parser_test.ipynb)
 3. Расширить модуль для распознания структуры таблицы и заголовка
-4. Расширить модуль для выделения информации и header и footer документа
+4. Расширить модуль для выделения информации и header и footer документа!
 5. Поместить модуль в обособленный контейнер
     * 31.08.2020 - перешел на разработкув виртуальной среде (файл [requirements.txt](requirements.txt) пока вкл. модули и для Spyder)
