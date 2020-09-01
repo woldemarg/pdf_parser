@@ -134,26 +134,3 @@ ptt_df["marks"] = np.nan
 ptt_df.loc[sep_idx, "marks"] = "separator"
 ptt_df.loc[tbl_idx_cln, "marks"] = "table_row"
 ptt_df.loc[tbl_hdr_idx, "marks"] = "table_header"
-
-# %%
-# s = compare_df.iloc[1, 0]
-
-# tokens = re.findall('\s+', s)
-
-# for i in range(0, len(tokens)):
-#     print(len(tokens[i]))
-
-# d.iloc[0]
-# # %%
-# s = compare_df.iloc[1, 1]
-
-# tokens = re.findall('\s+', s)
-
-# for i in range(0, len(tokens)):
-#     print(len(tokens[i]))
-
-# # compare_df.loc[22, "cam"]
-# # s
-# len(tokens[1])
-
-# ptt_df[ptt_df[0].str.startswith("1")]
