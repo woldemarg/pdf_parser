@@ -1,9 +1,3 @@
-import re
-import pandas as pd
-import numpy as np
-import camelot
-import tabula
-from fpdf import FPDF
 from scripts.pdf_parser_class import PDFparser
 
 # %%
@@ -16,3 +10,6 @@ my_parser = PDFparser()
 # %%
 df_1 = my_parser.get_rows_marked(PDF_1)
 df_2 = my_parser.get_rows_marked(PDF_2)
+
+# %%
+df_1.equals(df_2)
