@@ -12,4 +12,4 @@ df_1 = my_parser.get_rows_marked(PDF_1)
 df_2 = my_parser.get_rows_marked(PDF_2)
 
 # %%
-df_1.equals(df_2)
+print(df_1.equals(df_2))

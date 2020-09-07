@@ -13,6 +13,7 @@ class PDFparser():
                  tbl_row_min_fill=0.6
                  ):
         self.doc_df = None
+        self.doc_df_m = None
         self.drop_empty_rows = drop_empty_rows
         self.file_path = None
         self.parse_method = parse_method
@@ -71,7 +72,6 @@ class PDFparser():
         self.file_path = file_path
         self.doc_df = doc_df
         return doc_df
-
 
 
     def __get_sep_idx(self):
@@ -145,20 +145,18 @@ class PDFparser():
 
 
     def get_rows_marked(self, file_path):
-        if self.doc_df is None:
-            doc_df = self.get_rows(file_path)
-        doc_df = self.doc_df
-        doc_df["mark"] = np.nan
+        doc_df_m = self.get_rows(file_path).copy()
+        doc_df_m["mark"] = np.nan
 
         self.__get_sep_idx()
 
         tbl_idx = self.__get_tbl_idx()
-        doc_df.loc[tbl_idx, "mark"] = "tbl_row"
+        doc_df_m.loc[tbl_idx, "mark"] = "tbl_row"
 
         tbl_hdr_idx = self.__get_tbl_hdr_idx()
-        doc_df.loc[tbl_hdr_idx, "mark"] = "tbl_hdr"
+        doc_df_m.loc[tbl_hdr_idx, "mark"] = "tbl_hdr"
 
-        doc_df["mark"].fillna("doc_txt", inplace=True)
+        doc_df_m["mark"].fillna("doc_txt", inplace=True)
 
-        self.doc_df = doc_df
-        return doc_df
+        self.doc_df_m = doc_df_m
+        return doc_df_m
