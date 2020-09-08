@@ -1,4 +1,4 @@
-from scripts.pdf_parser_class import PDFparser
+from scripts.v_01.pdf_parser_class import PDFparser
 
 # %%
 PDF_1 = "task_description/examples/Sysco PO#_338-4243823.pdf"

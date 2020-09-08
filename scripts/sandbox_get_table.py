@@ -7,11 +7,11 @@ from fpdf import FPDF
 from scripts.pdf_parser_class import PDFparser
 
 # %%
-PDF = "task_description/examples/Sysco PO#_338-4243823.pdf"
-# PDF = "task_description/examples/GFS 5760519.pdf"
+# PDF = "task_description/examples/Sysco PO#_338-4243823.pdf"
+PDF = "task_description/examples/GFS 5760519.pdf"
 
 # %%
-my_parser = PDFparser(parse_method="camelot")
+my_parser = PDFparser()
 df = my_parser.get_rows_marked(PDF)
 
 # %%
@@ -38,6 +38,8 @@ ROW_DEM += " (" + str(ws[-1]) + ") "
 
 # %%
 def split_to_cols(row_org):
+    row_org = row_org.strip()
+
     tkns = re.findall(r"\s+", row_org)
 
     whsp = [] # num of spaces between words in a row
@@ -115,7 +117,8 @@ def get_table(tbl_rows):
         if len(rw) != len_mode:
             splitted_rows[i] = [np.nan] * len_mode
 
-    init_df = pd.DataFrame(splitted_rows)
+    init_df = pd.DataFrame(splitted_rows,
+                           index=tbl_rows.index)
 
     i, offset = 0, 0
     while i < init_df.shape[1]:
@@ -131,13 +134,11 @@ def get_table(tbl_rows):
     return init_df
 
 # %%
-str_series = (df
-              .loc[df["mark"] == "tbl_row", 0]
-              .reset_index(drop=True))
+str_series = df.loc[df["mark"] == "tbl_row", 0]
 
-# table_rows = str_series.loc[range(0, len(str_series), 2)]
+uneven_rows = str_series.iloc[::2]
 
-new_df = get_table(str_series)
+uneven_df = get_table(uneven_rows)
 
 # %%
 # pdf = FPDF()
@@ -163,3 +164,56 @@ new_df = get_table(str_series)
 #                             suppress_stdout=True,
 #                             pages="all")
 # print(tables_1[0].df.head(25))
+
+# %%
+row = (df
+       .loc[df["mark"] == "tbl_row", 0]
+       .reset_index(drop=True))
+
+splitted_rows = []
+for rw in uneven_rows:
+    rw = rw.replace("|", "")
+    splitted_rows.append(split_to_cols(rw))
+
+# h = row[7]
+# h2 = split_to_cols2(row_mod)
+
+# %%
+def split_to_cols2(row_org):
+    row_org = row_org.strip()
+    tkns = re.findall(r"\s+", row_org)
+
+    whsp = [] # num of spaces between words in a row
+    for i, t in enumerate(tkns):
+        whsp.append(len(t))
+    whsp.insert(0, 0)
+    whsp.append(0)
+
+    row_mod = re.sub(r"(^[0-9]+)(\s{1})", r"\1  ", row_org)
+    row_spl = re.split(r"\s+", row_mod)
+
+
+    cols = []
+    cols.append(row_spl[0])
+
+    i = 1
+    while i < len(row_spl[:-1]):
+        el = row_spl[i]
+        if whsp[i + 1] != 1:
+            i += 1
+        else:
+            j = 1
+            while whsp[i + j] == 1:
+                el += " " + row_spl[i + j]
+                j += 1
+            i = i + j
+        cols.append(el.strip())
+    cols.append(row_spl[-1])
+
+    return cols
+
+# %%
+for w in splitted_rows[0]:
+    print ("{} starts at {}".format(w, row[0].find(w)))
+
+row[1].find("182050")

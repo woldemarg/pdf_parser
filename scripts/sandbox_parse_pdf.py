@@ -9,8 +9,8 @@ import pdftotext
 # import re
 
 # %%
-# NEW_PDF = "task_description/examples/GFS 5760519.pdf"
-NEW_PDF = "task_description/examples/sysco PO#_077-2706434.pdf"
+NEW_PDF = "task_description/examples/GFS 5760519.pdf"
+# NEW_PDF = "task_description/examples/sysco PO#_077-2706434.pdf"
 # NEW_PDF = "task_description/examples/Sysco PO#_338-4243823.pdf"
 # NEW_PDF = "task_description/examples/GFS PO3430811.pdf"
 
@@ -22,7 +22,7 @@ splitted = ("\n\n".join(text_pages)
             .splitlines())
 
 ptt_df = pd.DataFrame(splitted)
-ptt_df[0] = ptt_df[0].str.strip()
+# ptt_df[0] = ptt_df[0].str.strip()
 
 ptt_df[0].replace("", np.nan, inplace=True)
 ptt_df.dropna(inplace=True)
@@ -78,11 +78,11 @@ sep_idx = filled_lines_lens.index[filled_lines_lens >= str_len_max * 0.5]
 
 # table indicies
 # get all rows starts with numbers, preserving original index
-d_rows = (ptt_df[(ptt_df[0].str.contains(r"^\d+\s+")) & # starts with digit
+d_rows = (ptt_df[(ptt_df[0].str.contains(r"^\s*\d+\s+")) & # starts with digit
                  ((ptt_df[0].str.len() -
                    ptt_df[0].str.count(" ")) /
-                  ptt_df[0].str.len().mean() >= 0.6)][0] # and filled for more than 30%
-          .str.extract(pat=r"^(\d+)\s*\D") # get number from str beginning
+                  ptt_df[0].str.len().mean() >= 0.5)][0] # and filled for more than 30%
+          .str.extract(pat=r"^\s*(\d+)\s*\D") # get number from str beginning
           .astype(np.int64))[0]
 
 tbl_frst_row_idx = d_rows[d_rows == 1].index.min()
@@ -134,3 +134,99 @@ ptt_df["marks"] = np.nan
 ptt_df.loc[sep_idx, "marks"] = "separator"
 ptt_df.loc[tbl_idx_cln, "marks"] = "table_row"
 ptt_df.loc[tbl_hdr_idx, "marks"] = "table_header"
+
+# %%
+str_series = ptt_df.loc[ptt_df["marks"] == "table_row", 0]
+
+uneven_rows = str_series.iloc[::2]
+even_rows = str_series.iloc[1::2]
+
+uneven_df = get_table(uneven_rows)
+
+# %%
+
+def get_cell_text_start_positions(row_orig, row_cell):
+    pos_list = []
+    start_pos = 0
+    for i, cell_text in enumerate(row_cell):
+        row_orig_cutted = row_orig[start_pos:]
+        cur_pos = row_orig_cutted.find(cell_text)
+        pos_list.append(cur_pos + start_pos)
+        start_pos += cur_pos + len(cell_text)
+    return pos_list
+
+
+
+pos = []
+for i in range(len(uneven_rows)):
+    pos.append(get_cell_text_start_positions(uneven_rows.iloc[i],
+                                              uneven_df.iloc[i]))
+
+    # pos_in_row = []
+    # start_pos = 0
+    # for j in range(uneven_df.shape[1]):
+    #     cell = uneven_df.loc[i, j]
+    #     str_to_seek_in = uneven_rows.iloc[i][start_pos:]
+    #     cur_pos = str_to_seek_in.find(cell)
+    #     pos_in_row.append(cur_pos + start_pos)
+    #     start_pos += cur_pos + len(cell)
+    pos.append(pos_in_row)
+
+def rename_elements_in_list(ls_in):
+    ls_out = []
+    i = 0
+    while i < len(ls_in) - 1:
+        if ls_in[i] != ls_in[i + 1]:
+            ls_out.append(str(ls_in[i]))
+            i += 1
+        j = 1
+        while i + j < len(ls_in):
+            if ls_in[i] == ls_in[i + j]:
+                ls_out.append("{}_{}".format(ls_in[i - 1], j))
+                j += 1
+            else:
+                ls_out.append(str(ls_in[j]))
+                break
+        i += j
+    ls_out.append(str(ls_in[-1]))
+
+    return ls_out
+
+
+
+
+
+
+# r = even_rows.iloc[9]
+even_ls = []
+for i, r in enumerate(even_rows):
+    row_mod = r.replace("|", " ").strip()
+    # row_spl = re.split(r"\s+", row_mod)
+    row_spl = row_mod.split()
+    w_pos = get_cell_text_start_positions(r, row_spl)
+    df_pos = np.searchsorted(pos[i], w_pos)
+    df_pos = rename_elements_in_list(df_pos)
+
+    s = pd.DataFrame(data=dict(zip(df_pos, row_spl)),
+                     index=[uneven_rows.index[i]])
+    even_ls.append(s)
+
+
+# g = pd.concat(even_ls, axis=1, verify_integrity=True)
+g3 = pd.concat(even_ls, sort=True) #, ignore_index=False, sort=False)
+# g2 = pd.append(even_ls)
+# , axis=1, verify_integrity=True)
+g4 = pd.concat([uneven_df, g3], axis=1, sort=True)
+g4 = g4.reindex(sorted(g4.columns.astype("str")), axis=1)
+g4.columns = g4.columns.astype("str")
+g5 = g4.sort_index(axis=1)
+even_rows.index[0]
+len(uneven_rows.iloc[0])
+
+
+    print ("{} starts at {}".format(w, row[0].find(w)))
+
+list(enumerate(uneven_df.loc[0]))
+
+np.searchsorted([1,2,3,4,5], [2, 2], side="right")
+sorted(g4.columns.astype("str"))
