@@ -1,7 +1,7 @@
+from itertools import chain, combinations
+
 import numpy as np
 import pandas as pd
-
-from itertools import chain, combinations
 
 from scripts.v_02.pdf_parser_class import PDFparser
 import scripts.v_02.get_table_utils as tbu
@@ -69,7 +69,7 @@ for k, r in enumerate(evn_strings):
     col_idx_renamed = add_postfix(col_idx)
 
     one_row_df = pd.DataFrame(data=dict(zip(col_idx_renamed, row_spl)),
-                     index=[odd_strings.index[k]])
+                              index=[odd_strings.index[k]])
     evn_cells_positions.append(one_row_df)
 
 evn_df = pd.concat(evn_cells_positions)
@@ -98,4 +98,3 @@ full_table.sort_index(axis=1, inplace=True)
 full_table.columns = list(range(full_table.shape[1]))
 
 full_table = full_table.reset_index(drop=True)
-
